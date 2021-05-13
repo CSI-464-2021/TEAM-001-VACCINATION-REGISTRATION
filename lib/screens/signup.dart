@@ -12,6 +12,11 @@ class SignUp extends StatefulWidget{
 
 }
 
+enum FormType{
+  login,
+  register
+}
+
 class SignUpPageState extends State<SignUp>{
 
   TextEditingController emailController = new TextEditingController();
@@ -30,64 +35,14 @@ class SignUpPageState extends State<SignUp>{
   RegExp contactValidator = RegExp("^[0-9][0-9][0-9][0-9][1|2][0-9][0-9][0-9][0-9]");
   bool isContact=true;
 
-
-  Future<List> _login() async{
-
-    url = "http://10.0.2.2/contact_tracing/getDriverData.php";
-    //url = "http://10.220.3.74/contact_tracing/getDriverData.php";
-    final response = await http.post(url, body: {
-      "username": userName.text,
-      "email": emailController.text,
-      "contact": contact.text,
-      "password": password.text,
-
-    });
-
-    print("object");
-    print(response.body);
-
-    var Details = json.decode(response.body);
+  String email;
+  String pass;
+  //Formtype
 
 
 
 
-    if((response.body).length==2){
 
-      setState(() {
-
-        banner = "Invalid username of password";
-        emailController.clear();
-        password.clear();
-        bool isID=false;
-
-      });
-    }else{
-
-      String ID = Details[0]['ContactID'];
-      String name = Details[0]['Name'];
-
-
-      print (ID);
-      print (name);
-
-      emailController.clear();
-      password.clear();
-
-
-      setState(() {
-
-        email = ID;
-        username=name;
-
-        bool isID=false;
-
-
-      });
-      Navigator.of(context).pushNamed('/driverHomepage');
-    }
-
-
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +179,7 @@ class SignUpPageState extends State<SignUp>{
                   if(!isEmail){
 
                   }else {
-                    _login();
+                    //_login();
                   }
                 },
               ),

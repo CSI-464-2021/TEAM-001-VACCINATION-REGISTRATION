@@ -1,84 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vaccination_registration_app/main.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:vaccination_registration_app/screens/wrapper.dart';
+import 'package:vaccination_registration_app/services/authentication.dart';
 
-class Home extends StatefulWidget{
+class HomePage extends StatefulWidget {
 
+  HomePage({ Key key, this.user, this.auth, this.onSignOut}) :super(key: key);
+  final user;
+  final BaseAuth auth;
+  final VoidCallback onSignOut;
 
   @override
   HomePageState createState() => new HomePageState();
 
 }
-
-class HomePageState extends State<Home>{
-
-
-  TextEditingController emailController = new TextEditingController();
-  TextEditingController password = new TextEditingController();
-  String banner = "";
-  String url;
-  RegExp emailValidator = RegExp("^[0-9][0-9][0-9][0-9][1|2][0-9][0-9][0-9][0-9]");
-  bool isEmail=true;
-
-
-  Future<List> _login() async{
-
-    url = "http://10.0.2.2/contact_tracing/getDriverData.php";
-    //url = "http://10.220.3.74/contact_tracing/getDriverData.php";
-    final response = await http.post(url, body: {
-      "ID": emailController.text,
-      "password": password.text,
-    });
-
-    print("object");
-    print(response.body);
-
-    var Details = json.decode(response.body);
-
-
-
-
-    if((response.body).length==2){
-
-      setState(() {
-
-        banner = "Invalid username of password";
-        emailController.clear();
-        password.clear();
-        bool isID=false;
-
-      });
-    }else{
-
-      String ID = Details[0]['ContactID'];
-      String name = Details[0]['Name'];
-
-
-      print (ID);
-      print (name);
-
-      emailController.clear();
-      password.clear();
-
-
-      setState(() {
-
-        email = ID;
-        username=name;
-
-        bool isID=false;
-
-
-      });
-      Navigator.of(context).pushNamed('/driverHomepage');
-    }
-
-
-  }
-
+class HomePageState extends State<HomePage>{
   @override
   Widget build(BuildContext context) {
 

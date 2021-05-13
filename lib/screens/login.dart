@@ -1,3 +1,5 @@
+//import 'dart:html';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
@@ -6,9 +8,14 @@ import 'package:vaccination_registration_app/main.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:vaccination_registration_app/screens/wrapper.dart';
+import 'package:vaccination_registration_app/services/authentication.dart';
 
 class Login extends StatefulWidget{
 
+  Login({this.auth, this.onLoggedIn});
+  final BaseAuth auth;
+  final VoidCallback onLoggedIn;
 
   @override
   LoginPageState createState() => new LoginPageState();
@@ -25,7 +32,7 @@ class LoginPageState extends State<Login>{
   RegExp emailValidator = RegExp("");
   bool isEmail=true;
   final _formKey = GlobalKey<FormState>();
-  //final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
   //void validateAndSave() {
   //  final form = _formKey.currentState;
@@ -39,7 +46,7 @@ class LoginPageState extends State<Login>{
 
   void _login() async{
 
-    await Firebase.initializeApp();
+    //await Firebase.initializeApp();
     try{
       FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: password.text);
       UserCredential user = await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: password.text);
@@ -48,6 +55,10 @@ class LoginPageState extends State<Login>{
       print('Error $e');
     }
 
+
+  }
+
+  void moveToSignUp(){
 
   }
 

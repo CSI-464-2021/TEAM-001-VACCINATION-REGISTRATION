@@ -4,8 +4,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vaccination_registration_app/main.dart';
 
+
 class BookAppointment extends StatefulWidget{
 
+  BookAppointment({Key key}) : super(key: key);
 
   @override
   BookAppointmentPageState createState() => new BookAppointmentPageState();
@@ -20,6 +22,14 @@ class BookAppointmentPageState extends State<BookAppointment>{
   String url;
   RegExp dateValidator = RegExp("^[0-9][0-9][0-9][0-9][1|2][0-9][0-9][0-9][0-9]");
   bool isDate=true;
+
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed
+    dateController.dispose();
+    super.dispose();
+  }
 
 
   Future<List> _login() async{
@@ -103,25 +113,19 @@ class BookAppointmentPageState extends State<BookAppointment>{
                 width: 300,
                 color: Color(0xFFFCF2F5),
                 child: TextField(
-
+                  readOnly: true,
                   controller: dateController,
-                  onChanged: (inputValue){
-                    if(inputValue.isEmpty || dateValidator.hasMatch(inputValue)){
-                      setState(() {
-                        isDate = true;
-                      });
-                    } else{
-                      setState(() {
-                        isDate= false;
-                      });
-
-                    }
-                  },
                   decoration: InputDecoration(
-                      hintText: "DD-MM-YYYY",
-                      errorText: isDate ? null : "Please enter proper format of Date"
+                      hintText: 'Pick your Date'
                   ),
-                ),
+                  onTap: () async {
+                    var date =  await showDatePicker(
+                        context: context,
+                        initialDate:DateTime.now(),
+                        firstDate:DateTime.now(),
+                        lastDate: DateTime(2100));
+                    dateController.text = date.toString().substring(0,10);
+                  },)
               ),
               Text("",style: TextStyle(fontSize: 18.0),),
 

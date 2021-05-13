@@ -6,7 +6,8 @@ import 'package:vaccination_registration_app/screens/homepage.dart';
 import 'package:vaccination_registration_app/screens/settings.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:vaccination_registration_app/screens/wrapper.dart';
+import 'package:vaccination_registration_app/services/authentication.dart';
 
 void main(){
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +21,7 @@ String username = '';
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
 
-  final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
   Map<int, Color> color2 =
   {
     50:Color.fromRGBO(159,61,64, .1),
@@ -73,7 +74,43 @@ class MyApp extends StatelessWidget {
 
 
     },
-      home: new Login(),
+      home: new BookAppointment(),
+    );
+  }
+}
+
+class Home extends StatelessWidget{
+
+  @override Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+  Widget build(BuildContext context){
+    return Scaffold(
+      body: FutureBuilder(
+        future: _initialization,
+        builder: (context, snapshot) {
+          if(snapshot.hasError){
+            return Scaffold(
+              body: Center(
+                child: Text('Error'),
+              ),
+            );
+          }
+
+          if(snapshot.connectionState == ConnectionState.done){
+            return Scaffold(
+              body: Center(
+                child: Wrapper(
+                  auth: Auth(),
+                ),
+              ),
+            );
+          }
+
+          return Scaffold(
+              body: Center(
+                child: Text('Loading'),));
+        }
+      ),
     );
   }
 }
