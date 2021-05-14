@@ -1,8 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vaccination_registration_app/main.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:vaccination_registration_app/screens/wrapper.dart';
+import 'package:vaccination_registration_app/services/authentication.dart';
+import 'package:vaccination_registration_app/models/user.dart';
+import 'package:vaccination_registration_app/services/firestore_service.dart';
 
 class SignUp extends StatefulWidget{
 
@@ -12,10 +21,6 @@ class SignUp extends StatefulWidget{
 
 }
 
-enum FormType{
-  login,
-  register
-}
 
 class SignUpPageState extends State<SignUp>{
 
@@ -25,6 +30,7 @@ class SignUpPageState extends State<SignUp>{
   TextEditingController comfirmPassword = new TextEditingController();
   TextEditingController userName = new TextEditingController();
   TextEditingController contact = new TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   String banner = "";
   String url;
@@ -39,161 +45,153 @@ class SignUpPageState extends State<SignUp>{
   String pass;
   //Formtype
 
+  void _Signup() async{
+
+    //await Firebase.initializeApp();
+    try{
+      FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: password.text);
+      UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: emailController.text, password: password.text);
+      //await createUser()
+
+
+    }
+    catch(e){
+      print('Error $e');
+    }
+
+
+  }
 
 
 
 
 
   @override
+  @override
   Widget build(BuildContext context) {
 
     return Scaffold(
 
-      appBar: AppBar(title: Text("SIGNUP"),),
+      appBar: AppBar(title: Text("LOGIN"),),
       body: Container(
         color: Color(0xFFF7E1E1),
         child: Center(
 
-          child: Column(
+          child: Form(
+            key: _formKey,
+
+            child: Column(
 
 
-            children: <Widget>[
+              children: <Widget>[
 
 
-              Text("",style: TextStyle(fontSize: 18.0),),
-              Text("SIGNUP",style: TextStyle(fontSize: 18.0,color: Color(0xFF9F3D40), fontWeight: FontWeight.bold,),),
-              Text("",style: TextStyle(fontSize: 18.0),),
+                Text("",style: TextStyle(fontSize: 18.0),),
+                Text("LOGIN",style: TextStyle(fontSize: 18.0,color: Color(0xFF9F3D40), fontWeight: FontWeight.bold,),),
+                Text("",style: TextStyle(fontSize: 18.0),),
 
-              Container(
-                width: 300,
-                color: Color(0xFFFCF2F5),
-                child: TextField(
+                Container(
+                  width: 300,
+                  color: Color(0xFFFCF2F5),
+                  child: TextFormField(
 
-                  controller: userName,
-                  onChanged: (inputValue){
-                    if(nameValidator.hasMatch(inputValue)){
-                      setState(() {
-                        isName = true;
-                      });
-                    } else{
-                      setState(() {
-                        isName = false;
-                      });
+                    controller: userName,
+                    validator : (value) => nameValidator.hasMatch(value) && value!=null
+                        ? 'Enter a valid name '
+                        : null,
 
-                    }
-                  },
-                  decoration: InputDecoration(
-                      hintText: "USERNAME",
-                      errorText: isName ? null : "Please enter proper format of ID"
+                    decoration: InputDecoration(
+                        hintText: "USERNAME",
+                        errorText: isName ? null : "Please enter proper format of ID"
+                    ),
                   ),
                 ),
-              ),
-              Text("",style: TextStyle(fontSize: 18.0),),
 
-              Container(
-                width: 300,
-                color: Color(0xFFFCF2F5),
-                child: TextField(
+                Container(width: 300,
+                  color: Color(0xFFFCF2F5),
+                  child: TextFormField(
 
-                  controller: emailController,
-                  onChanged: (inputValue){
-                    if(inputValue.isEmpty || emailValidator.hasMatch(inputValue)){
-                      setState(() {
-                        isEmail = true;
-                      });
-                    } else{
-                      setState(() {
-                        isEmail = false;
-                      });
+                    controller: emailController,
 
-                    }
-                  },
-                  decoration: InputDecoration(
+                    decoration: InputDecoration(
                       hintText: "EMAIL",
-                      errorText: isEmail ? null : "Please enter proper format of ID"
+
+                    ),
+                    autofillHints: [AutofillHints.email],
+                    validator : (value) => !EmailValidator.validate(value) && value!=null
+                        ? 'Enter a valid Email '
+                        : null,
                   ),
                 ),
-              ),
-              Text("",style: TextStyle(fontSize: 18.0),),
+                Text("",style: TextStyle(fontSize: 18.0),),
 
-              Container(
-                width: 300,
-                color: Color(0xFFFCF2F5),
-                child: TextField(
+                Container(
+                  width: 300,
+                  color: Color(0xFFFCF2F5),
+                  child: TextFormField(
 
-                  controller: contact,
-                  onChanged: (inputValue){
-                    if(contactValidator.hasMatch(inputValue)){
-                      setState(() {
-                        isContact = true;
-                      });
-                    } else{
-                      setState(() {
-                        isContact = false;
-                      });
+                    controller: contact,
+                    validator : (value) => contactValidator.hasMatch(value) && value!=null
+                        ? 'Enter a valid contact '
+                        : null,
+                    decoration: InputDecoration(
+                        hintText: "CELLNUMBER",
+                    ),
+                  ),
+                ),
+
+
+                Container(
+                  color: Color(0xFFFCF2F5),
+                  width: 300,
+                  child: TextField(
+                    controller: password,
+                    obscureText: true,
+                    obscuringCharacter: "*",
+                    decoration: InputDecoration(
+                        hintText: "Enter PASSWORD"
+                    ),
+                  ),
+                ),
+
+                Text(banner,style: TextStyle(fontSize: 18.0),),
+
+                RaisedButton(
+                  child: Text("Submit",style: TextStyle(color: Colors.white)),
+                  color: Color(0xFF9F3D40),
+                  onPressed: (){
+                    final form = _formKey.currentState;
+                    if(form.validate()){
+
+                      _Signup();
+                    }else {
 
                     }
                   },
-                  decoration: InputDecoration(
-                      hintText: "CELLNUMBER",
-                      errorText: isEmail ? null : "Please enter proper format of ID"
+                ),
+
+                Text(" ",style: TextStyle(fontSize: 18.0),),
+
+
+
+                Container(
+                  child: RaisedButton(
+
+                    child: Text("create a new account",style: TextStyle(color: Colors.white)),
+                    color: Color(0xFF9F3D40),
+                    onPressed: (){
+
+                    },
                   ),
                 ),
-              ),
-
-              Text("",style: TextStyle(fontSize: 18.0),),
-              Container(
-                color: Color(0xFFFCF2F5),
-                width: 300,
-                child: TextField(
-                  controller: password,
-                  obscureText: true,
-                  obscuringCharacter: "*",
-                  decoration: InputDecoration(
-                      hintText: "Enter PASSWORD"
-                  ),
-                ),
-              ),
-
-              Text(banner,style: TextStyle(fontSize: 18.0),),
-
-              Container(
-                color: Color(0xFFFCF2F5),
-                width: 300,
-                child: TextField(
-                  controller: comfirmPassword,
-                  obscureText: true,
-                  obscuringCharacter: "*",
-                  decoration: InputDecoration(
-                      hintText: "Enter PASSWORD"
-                  ),
-                ),
-              ),
-
-              Text(banner,style: TextStyle(fontSize: 18.0),),
-
-              RaisedButton(
-                child: Text("Submit",style: TextStyle(color: Colors.white)),
-                color: Color(0xFF9F3D40),
-                onPressed: (){
-                  if(!isEmail){
-
-                  }else {
-                    //_login();
-                  }
-                },
-              ),
-
-              RaisedButton(
-                child: Text("Back",style: TextStyle(color: Colors.white)),
-                color: Color(0xFF9F3D40),
-
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-
     );
   }
 }
+
+
+
